@@ -1,4 +1,4 @@
-// app/assignment1/page.tsx
+
 'use client';
 
 import React, { useState, useRef, RefObject } from 'react';
@@ -147,7 +147,7 @@ export default function Assignment1() {
         </table>
       </div>
 
-      {/* Fly item animation */}
+
       {flyItem && (
         <div
           ref={flyRef}
