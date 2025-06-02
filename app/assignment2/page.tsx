@@ -48,9 +48,11 @@ export default function GroupedUsersPage() {
               <div className="mt-4">
                 <p className="font-medium text-gray-600 mb-1">💇 Hair Colors:</p>
                 <ul className="list-disc list-inside pl-4">
-                  {Object.entries(value.hair).map(([color, count]) => (
-                    <li key={color}>{color}: {count}</li>
-                  ))}
+                {Object.entries(value.hair).map(([color, count]) => (
+                <li key={color}>
+                    {color}: {typeof count === 'number' ? count : 'N/A'}
+                </li>
+                ))}
                 </ul>
               </div>
 
@@ -58,7 +60,7 @@ export default function GroupedUsersPage() {
                 <p className="font-medium text-gray-600 mb-1">🏡 Address Users:</p>
                 <ul className="list-disc list-inside pl-4">
                   {Object.entries(value.addressUser).map(([name, code]) => (
-                    <li key={name}>{name}: {code}</li>
+                   <li key={name}>{name}: {code as string}</li>
                   ))}
                 </ul>
               </div>

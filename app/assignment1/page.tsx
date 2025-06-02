@@ -1,9 +1,14 @@
-
+// app/assignment1/page.tsx
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, RefObject } from 'react';
 
-const initialData = [
+type Item = {
+  type: 'Fruit' | 'Vegetable';
+  name: string;
+};
+
+const initialData: Item[] = [
   { type: 'Fruit', name: 'Apple' },
   { type: 'Vegetable', name: 'Broccoli' },
   { type: 'Vegetable', name: 'Mushroom' },
@@ -18,17 +23,26 @@ const initialData = [
 ];
 
 export default function Assignment1() {
-  const [mainList, setMainList] = useState(initialData);
-  const [fruitList, setFruitList] = useState([]);
-  const [vegList, setVegList] = useState([]);
-  const timers = useRef({});
-  const mainRef = useRef(null);
+  const [mainList, setMainList] = useState<Item[]>(initialData);
+  const [fruitList, setFruitList] = useState<Item[]>([]);
+  const [vegList, setVegList] = useState<Item[]>([]);
+  const timers = useRef<Record<string, NodeJS.Timeout>>({});
+  const mainRef = useRef<HTMLTableCellElement>(null);
   const flyRef = useRef<HTMLDivElement>(null);
-  const [flyItem, setFlyItem] = useState(null);
+  const fruitRef = useRef<HTMLTableCellElement>(null);
+  const vegRef = useRef<HTMLTableCellElement>(null);
 
-  const handleFlyBack = (item, fromRef) => {
-    const fromBox = fromRef.current.querySelector(`#item-${item.name}`);
-    const toBox = mainRef.current.querySelector(`#target-main`);
+  const [flyItem, setFlyItem] = useState<{
+    name: string;
+    top: number;
+    left: number;
+    dx: number;
+    dy: number;
+  } | null>(null);
+
+  const handleFlyBack = (item: Item, fromRef: RefObject<HTMLTableCellElement>) => {
+    const fromBox = fromRef.current?.querySelector(`#item-${item.name}`) as HTMLElement | null;
+    const toBox = mainRef.current?.querySelector(`#target-main`) as HTMLElement | null;
     if (!fromBox || !toBox) return;
 
     const fromRect = fromBox.getBoundingClientRect();
@@ -48,7 +62,7 @@ export default function Assignment1() {
     }, 500);
   };
 
-  const moveToTypeList = (item, index) => {
+  const moveToTypeList = (item: Item, index: number) => {
     setMainList(prev => {
       const newList = [...prev];
       newList.splice(index, 1);
@@ -60,7 +74,7 @@ export default function Assignment1() {
     setList([...getList, item]);
 
     timers.current[item.name] = setTimeout(() => {
-      const fromRef = item.type === 'Fruit' ? fruitRef : vegRef;
+      const fromRef: RefObject<HTMLTableCellElement> = item.type === 'Fruit' ? fruitRef as RefObject<HTMLTableCellElement> : vegRef as RefObject<HTMLTableCellElement>;
       if (item.type === 'Fruit')
         setFruitList(prev => prev.filter(i => i.name !== item.name));
       else
@@ -69,15 +83,12 @@ export default function Assignment1() {
     }, 5000);
   };
 
-  const returnToMain = (item, type) => {
+  const returnToMain = (item: Item, type: 'Fruit' | 'Vegetable') => {
     clearTimeout(timers.current[item.name]);
     if (type === 'Fruit') setFruitList(prev => prev.filter(i => i.name !== item.name));
     else setVegList(prev => prev.filter(i => i.name !== item.name));
     setMainList(prev => [...prev, item]);
   };
-
-  const fruitRef = useRef(null);
-  const vegRef = useRef(null);
 
   return (
     <div className="min-h-screen bg-gray-50 p-8 relative">
@@ -136,7 +147,7 @@ export default function Assignment1() {
         </table>
       </div>
 
-
+      {/* Fly item animation */}
       {flyItem && (
         <div
           ref={flyRef}

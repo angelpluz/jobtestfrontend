@@ -1,9 +1,25 @@
 import { NextResponse } from 'next/server';
 
+type User = {
+  firstName: string;
+  lastName: string;
+  age: number;
+  gender: 'male' | 'female';
+  hair: {
+    color: string;
+  };
+  address: {
+    postalCode: string;
+  };
+  company: {
+    department: string;
+  };
+};
+
 export async function GET() {
   const res = await fetch('https://dummyjson.com/users');
   const data = await res.json();
-  const users = data.users;
+  const users: User[] = data.users;
 
   const grouped: Record<string, {
     male: number;
@@ -27,14 +43,23 @@ export async function GET() {
     }
 
     const group = grouped[dept];
-    group[user.gender]++;
-    group.hair[user.hair.color] = (group.hair[user.hair.color] || 0) + 1;
-    group.addressUser[user.firstName + user.lastName] = user.address.postalCode;
+
+    if (user.gender === 'male') {
+      group.male++;
+    } else if (user.gender === 'female') {
+      group.female++;
+    }
+
+    const hairColor = user.hair.color;
+    group.hair[hairColor] = (group.hair[hairColor] || 0) + 1;
+
+    const fullName = `${user.firstName}${user.lastName}`;
+    group.addressUser[fullName] = user.address.postalCode;
   }
 
   for (const dept in grouped) {
-    const deptUsers = users.filter(u => u.company.department === dept);
-    const ages = deptUsers.map(u => u.age);
+    const deptUsers = users.filter((u: User) => u.company.department === dept);
+    const ages = deptUsers.map((u: User) => u.age);
     const min = Math.min(...ages);
     const max = Math.max(...ages);
     grouped[dept].ageRange = `${min}-${max}`;
